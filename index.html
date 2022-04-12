@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Juego 3 rayas</title>
+    <style>
+        body {
+            background: #333;
+            color: #fff;
+            text-align: center;
+            padding-top: 50px;
+        }
+        
+        table {
+            border-collapse: collapse;
+        }
+        
+        .border_tabla {
+            background-color: rgb(175, 175, 175);
+            border-radius: 35px;
+        }
+        
+        .tabla_juego {
+            display: inline-table;
+        }
+        
+        .border_tabla td {
+            padding: 0;
+            width: 120px;
+            height: 120px;
+            font-size: 70px;
+            font-weight: bolder;
+            font-family: sans-serif;
+            text-shadow: 0 0 2px rgb(255, 255, 255), 0 0 0 rgb(255, 255, 255), 0 0 3px rgb(40, 43, 48), 0 0 3px rgb(40, 43, 48);
+            color: #fff;
+        }
+        
+        .border1 {
+            border-right: 10px #fff solid;
+        }
+        
+        .border2 {
+            border-right: 10px #fff solid;
+        }
+        
+        .border4 {
+            border-right: 10px #fff solid;
+            border-top: 10px #fff solid;
+            border-bottom: 10px #fff solid;
+        }
+        
+        .border5 {
+            border-top: 10px #fff solid;
+            border-bottom: 10px #fff solid;
+            border-right: 10px #fff solid;
+        }
+        
+        .border6 {
+            border-top: 10px #fff solid;
+            border-bottom: 10px #fff solid;
+        }
+        
+        .border7 {
+            border-right: 10px #fff solid;
+        }
+        
+        .border8 {
+            border-right: 10px #fff solid;
+        }
+        
+        .content-controls {
+            text-align: center;
+            width: 100%;
+            font-size: 20px;
+            letter-spacing: 1px;
+        }
+        
+        .content-controls input[type="button"] {
+            padding: 10px;
+            border-radius: 5px;
+        }
+        
+        .newinput {
+            background-color: #FFF;
+            border-radius: 4px;
+            border: 1px solid #DCDFE6;
+            box-sizing: border-box;
+            color: #606266;
+            font-weight: bold;
+            display: inline-block;
+            font-size: inherit;
+            height: 30px;
+            line-height: 40px;
+            outline: 0;
+            padding: 0 15px;
+        }
+        
+        .btn {
+            background-color: #00a700;
+            border: none;
+            color: white;
+            padding: 7px 35px;
+            border-radius: 25px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            cursor: pointer;
+        }
+        
+        .btn:hover {
+            content: "";
+            background: #02c702fb;
+        }
+    </style>
+</head>
+
+<body>
+    <div>
+        <input class="newinput" type="text" id="nombre" placeholder="NickName!">
+        <button class="btn" id="jugar">
+                Jugar!
+            </button>
+    </div>
+    <br>
+    <div class="border_tabla tabla_juego">
+        <table id="newjuego">
+            <tbody>
+                <tr data-row="0">
+                    <td class="border1" data-column="0"></td>
+                    <td class="border2" data-column="1"></td>
+                    <td class="border3" data-column="2"></td>
+                </tr>
+                <tr data-row="1">
+                    <td class="border4" data-column="0"></td>
+                    <td class="border5" data-column="1"></td>
+                    <td class="border6" data-column="2"></td>
+                </tr>
+                <tr data-row="2">
+                    <td class="border7" data-column="0"></td>
+                    <td class="border8" data-column="1"></td>
+                    <td class="border9" data-column="2"></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+    <script>
+        $(document).on('ready', function() {
+            var ws = false
+            $('#jugar').on('click', function() {
+                var nombre = $('#nombre').val()
+                if (nombre) {
+                    sw = true;
+                    swal({
+                        title: "Iniciando el juego....",
+                        icon: "success"
+                    });
+                } else {
+                    swal({
+                        title: "Ingrese su ID de Jugador",
+                        icon: "warning"
+                    });
+                }
+
+            })
+
+            var turno = 1;
+            var jugador = 0; // acumula los puntos del jugador 1
+            var maquina = 0; // acumula los puntos del jugador 2
+
+            var juego = new Array();
+            for (i = 0; i < 3; i++) {
+                juego.push([null, null, null])
+            }
+            // limpiar
+            function limpiar() {
+                $('#newjuego td').text('');
+                for (i = 0; i < 3; i++) {
+                    for (j = 0; j < 3; j++) {
+                        juego[i][j] = null;
+                    }
+                }
+            }
+            // reiniciar
+            function reiniciar() {
+                turno = 1;
+                jugador = 0;
+                maquina = 0;
+            }
+            $('#limpiar').on('click', function() {
+                limpiar();
+            });
+            $('#reiniciar').on('click', function() {
+                limpiar();
+                reiniciar();
+            });
+
+            $('#newjuego tr > td').on('click', function() {
+                var row = $(this).parent('tr').data('row');
+                var column = $(this).data('column');
+                if (turno == 1 && $(this).text() == "") {
+                    $(this).text('X');
+                    juego[row][column] = '1';
+                    turno = 2;
+                }
+                sleep(1000);
+                newmaquina($(this));
+                checkRow();
+                checkColumn();
+                checkDiagonal();
+
+            });
+            var data = 10
+
+            function newmaquina(n) {
+                var table = document.getElementById('newjuego');
+                for (i = 0; i < 3; i++) {
+                    for (j = 2; j > 0; j--) {
+                        if (!juego[i][j]) {
+                            var data = 10;
+                            var xn = table.rows[i].cells[j].className
+                            $('.' + xn).text('O');
+                            juego[i][j] = '0';
+                            turno = 1;
+                            break
+                        }
+                    }
+                    if (data == 10) {
+                        break
+                    }
+                }
+            }
+
+            function sleep(milliseconds) {
+                var start = new Date().getTime();
+                for (var i = 0; i < 1e7; i++) {
+                    if ((new Date().getTime() - start) > milliseconds) {
+                        break;
+                    }
+                }
+            }
+
+            function checkRow() {
+                for (var i = 0; i < 3; i++) {
+                    if (juego[0][0] == 1 && juego[i][1] == 1 && juego[i][2] == 1) {
+                        alert('gano X');
+                        jugador = jugador + 1;
+                        limpiar();
+                    }
+                    if (juego[i][0] == 0 && juego[i][1] == 0 && juego[i][2] == 0) {
+                        alert('gano O');
+                        maquina = maquina + 1;
+                        limpiar();
+                    }
+                }
+            }
+
+            function checkColumn() {
+                for (var i = 0; i < 3; i++) {
+                    if (juego[0][i] == 1 && juego[1][i] == 1 && juego[2][i] == 1) {
+                        alert('gano X');
+                        jugador = jugador + 1;
+                        limpiar();
+                    }
+                    if (juego[0][i] == 1 && juego[1][i] == 1 && juego[2][i] == 1) {
+                        alert('gano O');
+                        maquina = maquina + 1;
+                        limpiar();
+                    }
+                }
+            }
+
+            function checkDiagonal() {
+                for (var i = 0; i < 1; i++) {
+                    if (juego[0][i] == 1 && juego[1][i + 1] == 1 && juego[2][i + 2] == 1 || juego[0][i + 2] == 1 && juego[1][i + 1] == 1 && juego[2][i] == 1) {
+                        alert('gano X');
+                        jugador = jugador + 1;
+                        limpiar();
+                    }
+                    if (juego[0][i] == 0 && juego[1][i + 1] == 0 && juego[2][i + 2] == 0 || juego[0][i + 2] == 0 && juego[1][i + 1] == 0 && juego[2][i] == 0) {
+                        alert('gano O');
+                        maquina = maquina + 1;
+                        limpiar();
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>
